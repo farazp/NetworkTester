@@ -8,7 +8,8 @@ namespace
 {
     uint8_t makeControlByte(uint8_t blockSelect, bool read)
     {
-        const uint8_t rwBit = read ? 0x04 : 0x00;
+        // W5500 control byte: BSB[7:3], RWB[2] (1=WRITE, 0=READ), OM[1:0]
+        const uint8_t rwBit = read ? 0x00 : 0x04;
         const uint8_t omBits = 0x00;
         return static_cast<uint8_t>((blockSelect << 3) | rwBit | omBits);
     }
