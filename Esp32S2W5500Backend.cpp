@@ -24,6 +24,17 @@ bool Esp32S2W5500Backend::begin()
     digitalWrite(PIN_W5500_RST, HIGH);
     delay(150);
 
+#if ENABLE_SERIAL_DEBUG
+    Serial.printf(
+        "[W5500] SPI init: SCK=%d MISO=%d MOSI=%d CS=%d RST=%d\n",
+        W5500_SPI_SCK,
+        W5500_SPI_MISO,
+        W5500_SPI_MOSI,
+        PIN_W5500_CS,
+        PIN_W5500_RST
+    );
+#endif
+
     SPI.begin(
         W5500_SPI_SCK,
         W5500_SPI_MISO,
@@ -50,6 +61,7 @@ bool Esp32S2W5500Backend::begin()
     else if (status == EthernetNoHardware)
     {
         Serial.println(F("NO_HARDWARE"));
+        Serial.println(F("[W5500] Check wiring: SPI pins, CS pin, and reset line must match the actual board."));
     }
     else
     {
