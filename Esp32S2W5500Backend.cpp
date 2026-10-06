@@ -15,23 +15,26 @@ Esp32S2W5500Backend::Esp32S2W5500Backend()
 
 bool Esp32S2W5500Backend::begin()
 {
+    Serial.println(F("[DBG] Esp32S2W5500Backend::begin() called"));
+
     pinMode(PIN_W5500_CS, OUTPUT);
     digitalWrite(PIN_W5500_CS, HIGH);
 
-    pinMode(PIN_W5500_RST, OUTPUT);
-    digitalWrite(PIN_W5500_RST, LOW);
-    delay(50);
-    digitalWrite(PIN_W5500_RST, HIGH);
-    delay(150);
+    // RST not connected in test setup; skip hardware reset
+    // pinMode(PIN_W5500_RST, OUTPUT);
+    // digitalWrite(PIN_W5500_RST, LOW);
+    // delay(50);
+    // digitalWrite(PIN_W5500_RST, HIGH);
+    // delay(150);
 
 #if ENABLE_SERIAL_DEBUG
     Serial.printf(
-        "[W5500] SPI init: SCK=%d MISO=%d MOSI=%d CS=%d RST=%d\n",
+        "[W5500] SPI init: SCK=%d MISO=%d MOSI=%d CS=%d Freq=%lu\n",
         W5500_SPI_SCK,
         W5500_SPI_MISO,
         W5500_SPI_MOSI,
         PIN_W5500_CS,
-        PIN_W5500_RST
+        W5500_SPI_CLOCK_HZ
     );
 #endif
 
@@ -42,10 +45,16 @@ bool Esp32S2W5500Backend::begin()
         PIN_W5500_CS
     );
 
+    SPI.setFrequency(W5500_SPI_CLOCK_HZ);
     SPI.setDataMode(SPI_MODE0);
     SPI.setBitOrder(MSBFIRST);
 
     Ethernet.init(PIN_W5500_CS);
+    delay(50);
+
+    // Initialize W5500 hardware (chip detection happens here)
+    // Use short timeout to avoid blocking on DHCP
+    Ethernet.begin(const_cast<uint8_t*>(DEVICE_MAC), 100, 100);
     delay(50);
 
     initialized_ = true;

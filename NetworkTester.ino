@@ -1,5 +1,12 @@
 #include <Arduino.h>
 
+// Override W5500 pins to match your wiring (must be before HardwareConfig.h)
+#define PIN_W5500_CS 5
+#define PIN_W5500_RST 4
+#define W5500_SPI_SCK 18
+#define W5500_SPI_MISO 19
+#define W5500_SPI_MOSI 23
+
 #include "Config.h"
 #include "HardwareConfig.h"
 #include "PlatformCompat.h"
