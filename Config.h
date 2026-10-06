@@ -25,9 +25,9 @@
 
 #define SCAN_TIMEOUT_MS             250UL
 #define SCAN_DELAY_MS               10UL
-#define SCAN_MAX_HOSTS              254
+#define SCAN_MAX_HOSTS              24
 #define MAX_DISCOVERED_HOSTS        16
-#define SCAN_TCP_PORT               80
+#define SCAN_TCP_PORT               53
 
 #define BUTTON_DEBOUNCE_MS          35UL
 #define BUTTON_LONG_PRESS_MS        1200UL
@@ -50,11 +50,11 @@
 // Do not treat a plain TCP connection as HTTPS validation.
 #define DNS_TEST_HOST               "1.1.1.1"
 
-#define TCP_TEST_HOST               "google.com"
-#define TCP_TEST_PORT               80
+#define TCP_TEST_HOST               "8.8.8.8"
+#define TCP_TEST_PORT               53
 
 // Gateway test is TCP reachability only, not ICMP ping.
-#define GATEWAY_TEST_TCP_PORT       80
+#define GATEWAY_TEST_TCP_PORT       53
 
 // ============================================================
 // Device MAC address

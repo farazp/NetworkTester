@@ -1,6 +1,7 @@
 #include "PhyDiagnostics.h"
 
 #include <SPI.h>
+#include <Ethernet.h>
 #include "Config.h"
 
 namespace
@@ -13,21 +14,38 @@ namespace
     }
 }
 
-bool PhyDiagnostics::readPhyConfig(uint8_t csPin, uint8_t& phycfgr)
+bool PhyDiagnostics::readRegister(uint8_t csPin, uint16_t addr, uint8_t& value)
 {
     SPI.beginTransaction(SPISettings(W5500_SPI_CLOCK_HZ, MSBFIRST, SPI_MODE0));
 
     digitalWrite(csPin, LOW);
 
-    SPI.transfer(static_cast<uint8_t>(W5500_PHYCFGR >> 8));
-    SPI.transfer(static_cast<uint8_t>(W5500_PHYCFGR & 0xFF));
+    SPI.transfer(static_cast<uint8_t>(addr >> 8));
+    SPI.transfer(static_cast<uint8_t>(addr & 0xFF));
     SPI.transfer(makeControlByte(W5500_COMMON_REG_BLOCK, true));
 
-    phycfgr = SPI.transfer(0x00);
+    value = SPI.transfer(0x00);
 
     digitalWrite(csPin, HIGH);
 
     SPI.endTransaction();
+
+    return true;
+}
+
+bool PhyDiagnostics::readPhyConfig(uint8_t csPin, uint8_t& phycfgr)
+{
+    readRegister(csPin, W5500_PHYCFGR, phycfgr);
+
+#if ENABLE_SERIAL_DEBUG
+    Serial.printf("[PHY] PHYCFGR=0x%02X linkUp=%d speed=%dMbps duplex=%s libLink=%d\n",
+        phycfgr,
+        (phycfgr & 0x01),
+        (phycfgr & 0x02) ? 100 : 10,
+        (phycfgr & 0x04) ? "FULL" : "HALF",
+        (int)Ethernet.linkStatus()
+    );
+#endif
 
     return true;
 }

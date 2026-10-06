@@ -21,7 +21,9 @@
     #if defined(CONFIG_IDF_TARGET_ESP32S2)
         #include "Esp32S2W5500Backend.h"
     #else
-        #include "Esp32C3W5500Backend.h"
+    //For Test
+        //#include "Esp32C3W5500Backend.h"
+        #include "Esp32S2W5500Backend.h"
     #endif
 #endif
 
@@ -34,7 +36,8 @@ ButtonManager buttonManager(PIN_BUTTON);
     #if defined(CONFIG_IDF_TARGET_ESP32S2)
         Esp32S2W5500Backend networkBackend;
     #else
-        Esp32C3W5500Backend networkBackend;
+        //Esp32C3W5500Backend networkBackend;
+        Esp32S2W5500Backend networkBackend;
     #endif
 #endif
 
