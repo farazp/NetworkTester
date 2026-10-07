@@ -71,78 +71,78 @@ static constexpr uint8_t PIN_BUTTON = 3;
 // ESP32-S2 defaults used by the known-good generic ESP32/W5500 wiring.
 // If your board uses a different PCB mapping, override these before including this header.
 #ifndef PIN_W5500_CS
-#define PIN_W5500_CS 5
+#define PIN_W5500_CS 7
 #endif
 
 #ifndef PIN_W5500_RST
-#define PIN_W5500_RST 4
+#define PIN_W5500_RST 3
 #endif
 
 #ifndef PIN_W5500_INT
-#define PIN_W5500_INT 6
+#define PIN_W5500_INT 0
 #endif
 
 #ifndef W5500_SPI_SCK
-#define W5500_SPI_SCK 18
+#define W5500_SPI_SCK 4
 #endif
 
 #ifndef W5500_SPI_MISO
-#define W5500_SPI_MISO 19
+#define W5500_SPI_MISO 5
 #endif
 
 #ifndef W5500_SPI_MOSI
-#define W5500_SPI_MOSI 23
+#define W5500_SPI_MOSI 6
 #endif
 
 #ifndef PIN_I2C_SDA
-#define PIN_I2C_SDA 21
+#define PIN_I2C_SDA 8
 #endif
 
 #ifndef PIN_I2C_SCL
-#define PIN_I2C_SCL 22
+#define PIN_I2C_SCL 9
 #endif
 
 #ifndef PIN_BUTTON
-#define PIN_BUTTON 12
+#define PIN_BUTTON 1
 #endif
 
 #elif defined(CONFIG_IDF_TARGET_ESP32C3)
 
 // ESP32-C3 SuperMini common mapping.
 #ifndef PIN_W5500_CS
-#define PIN_W5500_CS 5
+#define PIN_W5500_CS 7
 #endif
 
 #ifndef PIN_W5500_RST
-#define PIN_W5500_RST 4
+#define PIN_W5500_RST 3
 #endif
 
 #ifndef PIN_W5500_INT
-#define PIN_W5500_INT 6
+#define PIN_W5500_INT 0
 #endif
 
 #ifndef W5500_SPI_SCK
-#define W5500_SPI_SCK 18
+#define W5500_SPI_SCK 4
 #endif
 
 #ifndef W5500_SPI_MISO
-#define W5500_SPI_MISO 19
+#define W5500_SPI_MISO 5
 #endif
 
 #ifndef W5500_SPI_MOSI
-#define W5500_SPI_MOSI 23
+#define W5500_SPI_MOSI 6
 #endif
 
 #ifndef PIN_I2C_SDA
-#define PIN_I2C_SDA 21
+#define PIN_I2C_SDA 8
 #endif
 
 #ifndef PIN_I2C_SCL
-#define PIN_I2C_SCL 22
+#define PIN_I2C_SCL 9
 #endif
 
 #ifndef PIN_BUTTON
-#define PIN_BUTTON 12
+#define PIN_BUTTON 1
 #endif
 
 #else

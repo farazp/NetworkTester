@@ -177,6 +177,15 @@ bool Esp32S2W5500Backend::readPhyStatus(PhyStatus& phy)
             phy.linkUp = (Ethernet.linkStatus() == LinkON);
         }
 
+        // Cross-check: trust the Ethernet library if it reports link up
+        if (!phy.linkUp && Ethernet.linkStatus() == LinkON)
+        {
+            phy.linkUp = true;
+            phy.speedValid = false;
+            phy.duplexValid = false;
+            phy.modeValid = false;
+        }
+
         if (phy.linkUp || (millis() - started) >= 3000UL)
         {
             break;

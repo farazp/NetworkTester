@@ -15,6 +15,8 @@ Esp32C3W5500Backend::Esp32C3W5500Backend()
 
 bool Esp32C3W5500Backend::begin()
 {
+    Serial.println(F("[DBG] Esp32C3W5500Backend::begin() called"));
+
     pinMode(PIN_W5500_CS, OUTPUT);
     digitalWrite(PIN_W5500_CS, HIGH);
 
@@ -24,6 +26,17 @@ bool Esp32C3W5500Backend::begin()
     digitalWrite(PIN_W5500_RST, HIGH);
     delay(150);
 
+#if ENABLE_SERIAL_DEBUG
+    Serial.printf(
+        "[W5500] SPI init: SCK=%d MISO=%d MOSI=%d CS=%d Freq=%lu\n",
+        W5500_SPI_SCK,
+        W5500_SPI_MISO,
+        W5500_SPI_MOSI,
+        PIN_W5500_CS,
+        W5500_SPI_CLOCK_HZ
+    );
+#endif
+
     SPI.begin(
         W5500_SPI_SCK,
         W5500_SPI_MISO,
@@ -31,11 +44,33 @@ bool Esp32C3W5500Backend::begin()
         PIN_W5500_CS
     );
 
+    SPI.setFrequency(W5500_SPI_CLOCK_HZ);
     SPI.setDataMode(SPI_MODE0);
     SPI.setBitOrder(MSBFIRST);
 
     Ethernet.init(PIN_W5500_CS);
     delay(50);
+
+#if ENABLE_SERIAL_DEBUG
+    uint8_t version = 0;
+    uint8_t phycfgr = 0;
+    PhyDiagnostics::readRegister(PIN_W5500_CS, 0x0039, version);
+    PhyDiagnostics::readRegister(PIN_W5500_CS, 0x005E, phycfgr);
+    Serial.printf(
+        "[W5500] VERSIONR=0x%02X (expect 0x04) PHYCFGR=0x%02X libLink=%d\n",
+        version,
+        phycfgr,
+        static_cast<int>(Ethernet.linkStatus())
+    );
+#endif
+
+    // Initialize W5500 hardware (chip detection happens here)
+    // Use short timeout to avoid blocking on DHCP
+    Ethernet.begin(const_cast<uint8_t*>(DEVICE_MAC), 100, 100);
+    delay(50);
+
+    // Allow PHY to establish link
+    delay(500);
 
     initialized_ = true;
 
@@ -102,14 +137,53 @@ bool Esp32C3W5500Backend::isLinkUp()
 
 bool Esp32C3W5500Backend::readPhyStatus(PhyStatus& phy)
 {
-    uint8_t phycfgr = 0;
+    // Verify manual SPI reads work: VERSIONR must be 0x04 for W5500
+    uint8_t version = 0;
+    PhyDiagnostics::readRegister(PIN_W5500_CS, 0x0039, version);
+    const bool manualReadOk = (version == 0x04);
 
-    if (!PhyDiagnostics::readPhyConfig(PIN_W5500_CS, phycfgr))
+#if ENABLE_SERIAL_DEBUG
+    Serial.printf("[PHY] VERSIONR=0x%02X manualRead=%s\n",
+        version, manualReadOk ? "OK" : "BROKEN");
+#endif
+
+    const uint32_t started = millis();
+
+    while (true)
     {
-        return false;
-    }
+        uint8_t phycfgr = 0;
 
-    PhyDiagnostics::decodePhyConfig(phycfgr, phy);
+        if (manualReadOk)
+        {
+            if (PhyDiagnostics::readPhyConfig(PIN_W5500_CS, phycfgr))
+            {
+                PhyDiagnostics::decodePhyConfig(phycfgr, phy);
+            }
+        }
+        else
+        {
+            // Manual SPI reads broken: fall back to Ethernet library
+            phy = PhyStatus{};
+            phy.valid = true;
+            phy.linkUp = (Ethernet.linkStatus() == LinkON);
+        }
+
+        // Cross-check: trust the Ethernet library if it reports link up
+        if (!phy.linkUp && Ethernet.linkStatus() == LinkON)
+        {
+            phy.linkUp = true;
+            phy.speedValid = false;
+            phy.duplexValid = false;
+            phy.modeValid = false;
+        }
+
+        if (phy.linkUp || (millis() - started) >= 3000UL)
+        {
+            break;
+        }
+
+        delay(250);
+    }
 
     return true;
 }
