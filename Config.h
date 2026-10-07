@@ -25,7 +25,7 @@
 
 #define SCAN_TIMEOUT_MS             250UL
 #define SCAN_DELAY_MS               10UL
-#define SCAN_MAX_HOSTS              24
+#define SCAN_MAX_HOSTS              32
 #define MAX_DISCOVERED_HOSTS        16
 #define SCAN_TCP_PORT               53
 
